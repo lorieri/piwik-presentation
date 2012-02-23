@@ -1,0 +1,25 @@
+Raid: http://hwraid.le-vert.net/
+Our Raid: http://hwraid.le-vert.net/wiki/LSIMegaRAIDSAS
+
+Our commands:
+
+Check battery status:
+/usr/sbin/megacli -AdpBbuCmd -GetBbuStatus -a0 | grep -e '^isSOHGood'|grep ': Yes'
+
+Turn on the write cache:
+/usr/sbin/megacli -LDInfo -LAll -aAll|tee /tmp/chefraidstatus |grep 'Default Cache Policy: WriteBack'
+ 
+Turn on the cache:
+/usr/sbin/megacli -LDSetProp Cached -LALL -aALL
+ 
+Turn off the cache in case the battery is not good
+/usr/sbin/megacli -LDSetProp Cached -LALL -aALL
+ 
+Turn on the HDD cache
+/usr/sbin/megacli -LDSetProp EnDskCache -LAll -aAll
+
+Turn on the adaptive cache
+/usr/sbin/megacli -LDSetProp ADRA -LALL -aALL
+
+DO NOT FORGET TO MONITOR THE RAID: There are tool for it in the website above
+ 

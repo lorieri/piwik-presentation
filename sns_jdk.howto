@@ -1,0 +1,17 @@
+Install SNS client and unzip it somewhere, let's say /usr/local/bin:
+Download from Amazon the file: SimpleNotificationServiceCli-2010-03-31.zip
+
+Install JDK:
+# apt-get install openjdk-6-jdk
+
+Create a .conf file with a key and secret to access the SNS. let's say /usr/local/sns.conf:
+AWSAccessKeyId=XXXXXXXXXXXX
+AWSSecretKey=XXXXXXXXX
+
+Create a source file on /usr/local/sns_env.source:
+export JAVA_HOME=/usr/lib/jvm/java-6-openjdk/
+export PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/bin/SimpleNotificationServiceCli-1.0.2.3/bin/
+ 
+export AWS_SNS_HOME=/usr/local/bin/SimpleNotificationServiceCli-1.0.2.3/
+export EC2_REGION=us-east-1
+export AWS_CREDENTIAL_FILE=/usr/local/sns.conf
