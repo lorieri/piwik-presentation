@@ -1,0 +1,29 @@
+# Chef Name: archive_daily
+# if no other daily or total is running, or if not lockall is present, run it and send last done message to monitoring tool
+# create lock files to avoid other tasks run in parallel, remove locks in the end
+10 8,12,15,18,22 * * * test -e /tmp/archive.run || test -e /tmp/archivetotal.run || test -e /tmp/lockall || (touch /tmp/archive.run ; sh /var/www/misc/cron/archive_daily.sh |tee -a /logs/piwik_archive_daily.log 2>&1|grep '[0-9] done!$'|tail -n1| xargs -0 /usr/bin/zabbix_sender -s myserver.com -z myzabbixserver.com -k cronpiwik_daily -o; rm /tmp/archive.run )
+
+# Chef Name: archive_total
+# run once  a day, after my timezone midnight time
+# always run, except if another total is running or lockall is present
+10 1 * * * test -e /tmp/archivetotal.run || test -e /tmp/lockall || (touch /tmp/archivetotal.run ; sh /var/www/misc/cron/archive_total.sh |tee -a /logs/piwik_archive.log 2>&1|grep '[0-9] done!$'|tail -n1| xargs -0 /usr/bin/zabbix_sender -s myserver.com -z myzabbixserver.com -k cronpiwik_all -o; rm /tmp/archivetotal.run )
+
+# Chef Name: monitor lockall
+*/10 * * * * /usr/bin/zabbix_sender -s myserver.com -z myzabbixserver.com -k lockall -o `test -e /tmp/lockall; echo $?`
+
+# Chef Name: Mysite worker
+# runs except if archiving total is running
+# lock, run, unlock, lockall check is inside the python script
+* * * * * test -e /tmp/mysiteworker.run || test -e /tmp/archivetotal.run > /dev/null || (touch /tmp/mysiteworker.run;cd /bin/async;/usr/bin/python mysite.py >> /logs/crons/mysiteworker.log 2>&1;rm /tmp/mysiteworker.run)
+
+
+# Chef Name: piwik_log_visit.drop_partitions.sh
+30 12 * * * /bin/bash /bin/partitions/piwik_log_visit.drop_partitions.sh ; /usr/bin/zabbix_sender -s myserver.com -z myzabbixserver.com -k piwik_log_visit.drop_partitions -o $?
+
+# Chef Name: piwik_log_visit.create_partitions.sh
+30 13 * * * /bin/bash /bin/partitions/piwik_log_visit.create_partitions.sh ; /usr/bin/zabbix_sender -s myserver.com -z myzabbixserver.com -k piwik_log_visit.create_partitions -o $?
+
+# Chef Name: piwik_log_visit.check_partitions.sh
+30 14 * * * /bin/bash /bin/partitions/piwik_log_visit.check_partitions.sh ; /usr/bin/zabbix_sender -s myserver.com -z myzabbixserver.com -k piwik_log_visit.check_partitions -o $?
+
+# THERE ARE 3 more for piwk_log_link_visit_action...

@@ -1,0 +1,6 @@
+[mysqld]
+table_open_cache=4096
+table_definition_cache=1024
+max_tmp_tables=1024
+innodb_open_files=600
+open_files_limit=999999
